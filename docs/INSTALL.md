@@ -40,11 +40,7 @@ the paths below if you used a different one.
 2. In `claude-vm`, install the claude-vm files:
 
    ```shell
-   sudo cp -rT .files/claude-vm /
-   sudo chmod +x /usr/local/bin/dom0-run
-
-   mkdir -p ~/.claude
-   cp ~/qubes-claude/files/claude-vm/.claude/CLAUDE.md ~/.claude/CLAUDE.md
+   sudo cp -rT ./files/claude-vm /
    ```
 
 3. In `dom0`, fetch `files.zip` from claude-vm and install the dom0 files:
@@ -56,7 +52,6 @@ the paths below if you used a different one.
    unzip -o ./files.zip
 
    sudo cp -rT ./files/dom0 /
-   sudo chmod +x /etc/qubes-rpc/local.Dom0Exec
    ```
 
    `cp -rT` treats `/` as the destination itself rather than a parent —
@@ -72,36 +67,12 @@ the paths below if you used a different one.
    The policy and the wrapper both reference `local.Dom0Exec` by name, so
    swapping the file content is the easiest way to switch variants.
 
-After these steps, all files are in place. The two sections below describe
-the claude-vm-side files in isolation, in case you want to install them
-manually instead.
-
-## Create claude-vm wrapper
-
-Inside `claude-vm`:
-
-Create `/usr/local/bin/dom0-run` containing [this](../files/claude-vm/usr/local/bin/dom0-run).
-
-Make it executable:
-
-```shell
-sudo chmod +x /usr/local/bin/dom0-run
-```
-
-## Install Claude config
-
-Inside `claude-vm`:
-
-Create `~/.claude/CLAUDE.md` containing [this](../files/claude-vm/.claude/CLAUDE.md).
-
-This tells Claude how to use `dom0-run` so it reaches for it automatically when a dom0 command is needed.
-
 ## Test
 
 Inside `claude-vm`:
 
 ```shell
-dom0-run "qvm-ls --raw-data NAME,STATE"
+dom0-run "qvm-ls --raw-data --fields=NAME,STATE"
 ```
 
 If you see the VM list returned, the bridge is working.
