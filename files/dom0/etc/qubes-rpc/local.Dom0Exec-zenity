@@ -1,0 +1,28 @@
+#!/bin/bash
+# Receives a shell command on stdin, prompts user via zenity, runs on approval.
+
+set -o pipefail
+src="${QREXEC_REMOTE_DOMAIN:-unknown}"
+cmd=$(head -c 16384)
+
+if [ -z "$cmd" ]; then
+    echo "[empty command]" >&2
+    exit 2
+fi
+
+# Show command for approval. --width forces wrap; --no-wrap would make long lines unreadable.
+if zenity --question \
+          --title="dom0 command from $src" \
+          --text="<tt>$(printf '%s' "$cmd" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')</tt>" \
+          --width=900 --height=300 \
+          --ok-label="Run" --cancel-label="Reject" 2>/dev/null; then
+    # Run with a timeout so a hung command doesn't lock the channel forever.
+    timeout 600 bash -c "$cmd" 2>&1
+    rc="$?"
+    echo
+    echo "[exit=${rc}]"
+    exit ${rc}
+else
+    echo "[rejected by user]" >&2
+    exit 126
+fi

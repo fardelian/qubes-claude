@@ -1,0 +1,17 @@
+#!/bin/bash
+# Receives a shell command on stdin, runs it in dom0, returns output.
+# NO APPROVAL — claude-vm has unconfirmed dom0 execution.
+
+set -o pipefail
+cmd=$(head -c 65536)
+
+if [ -z "$cmd" ]; then
+    echo "[empty command]" >&2
+    exit 2
+fi
+
+timeout 600 bash -c "$cmd" 2>&1
+rc="$?"
+echo
+echo "[exit=${rc}]"
+exit ${rc}
