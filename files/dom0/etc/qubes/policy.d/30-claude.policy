@@ -1,0 +1,2 @@
+local.Dom0Exec  *  claude-vm  @adminvm  allow
+local.Dom0Exec  *  @anyvm     @anyvm    deny

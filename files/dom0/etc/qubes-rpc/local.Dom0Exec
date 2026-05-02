@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Receives a shell command on stdin, runs it in dom0, returns output.
 # NO APPROVAL — claude-vm has unconfirmed dom0 execution.
 

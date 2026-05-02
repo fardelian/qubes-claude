@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Usage:
+#   dom0-run "qvm-firewall my-debian list"
+#   echo "long command" | dom0-run
+
+if [ -n "$1" ]; then
+    printf '%s\n' "$1" | qrexec-client-vm @adminvm local.Dom0Exec
+else
+    qrexec-client-vm @adminvm local.Dom0Exec
+fi

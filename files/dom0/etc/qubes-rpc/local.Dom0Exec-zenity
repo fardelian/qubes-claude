@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Receives a shell command on stdin, prompts user via zenity, runs on approval.
 
 set -o pipefail
