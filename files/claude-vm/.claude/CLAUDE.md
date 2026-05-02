@@ -10,15 +10,20 @@ This VM has a wrapper for executing commands in dom0:
     echo "<multi-line script>" | dom0-run
 ```
 
-The user will be prompted to approve every command via a zenity dialog in
-dom0 before it runs. Output (stdout+stderr) returns on stdout, with a final
-line `[exit=N]` showing the exit code. Maximum input size is 65000 bytes.
+Output (stdout+stderr) returns on stdout, with a final line `[exit=N]`
+showing the exit code. Maximum input size is 65536 bytes.
+
+If the dom0 service is the `local.Dom0Exec-zenity` variant (not the default),
+each command will pop up a confirmation dialog in dom0 before running.
 
 When debugging Qubes networking, VM config, firewall rules, or anything
 else that requires dom0 — use dom0-run. Never ask the user to copy/paste
 commands; just call dom0-run yourself.
 
-If using the second command with `echo`, pay careful attention to escaping.
+When using the first form, the command must be a single quoted string —
+`dom0-run qvm-ls extra` would silently drop `extra`. For multi-line or
+complex commands, use the stdin form. Pay careful attention to escaping
+when piping with `echo`.
 
 Useful starting points:
 ```shell

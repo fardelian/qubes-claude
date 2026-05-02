@@ -3,7 +3,7 @@
 
 set -o pipefail
 src="${QREXEC_REMOTE_DOMAIN:-unknown}"
-cmd=$(head -c 16384)
+cmd=$(head -c 65536)
 
 if [ -z "$cmd" ]; then
     echo "[empty command]" >&2
