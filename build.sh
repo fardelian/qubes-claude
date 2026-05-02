@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 # Build files.zip from the files/ directory and ensure it's gitignored.
 
 set -euo pipefail

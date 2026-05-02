@@ -7,9 +7,16 @@ lives on a network-connected dev host; to install, get the files onto the
 target qubes. The simplest path:
 
 1. Clone or copy this repo into `claude-vm` (it has networking).
-2. For `dom0` files, read them out of `claude-vm` from `dom0`:
+2. Run [`build.sh`](../build.sh) to create `files.zip`.
+3. For `dom0` files, copy `files.zip` out of `claude-vm` into `dom0`:
 
-       qvm-run --pass-io claude-vm 'cat /path/in/claude-vm' | sudo tee /target/path
+```shell
+mkdir -p ~/claude
+cd ~/claude
+qvm-run --pass-io claude-vm 'cat /path/in/claude-vm/files.zip' | tee ./files.zip
+unzip ./files.zip
+sudo cp -r ./files/dom0 /
+```
 
 ## Create claude-vm
 
