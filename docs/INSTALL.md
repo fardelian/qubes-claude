@@ -1,23 +1,5 @@
 # Install
 
-## Transferring files
-
-These instructions reference files in `../files/`. The repository normally
-lives on a network-connected dev host; to install, get the files onto the
-target qubes. The simplest path:
-
-1. Clone or copy this repo into `claude-vm` (it has networking).
-2. Run [`build.sh`](../build.sh) to create `files.zip`.
-3. For `dom0` files, copy `files.zip` out of `claude-vm` into `dom0`:
-
-```shell
-mkdir -p ~/claude
-cd ~/claude
-qvm-run --pass-io claude-vm 'cat /path/in/claude-vm/files.zip' | tee ./files.zip
-unzip ./files.zip
-sudo cp -r ./files/dom0 /
-```
-
 ## Create claude-vm
 
 Inside `dom0`:
@@ -37,33 +19,62 @@ Inside `claude-vm`:
 
 ```shell
 sudo apt update
-sudo apt install -y curl
+sudo apt install -y curl unzip
 curl -fsSL https://claude.ai/install.sh | bash
 ```
 
-## Create dom0 service
+## Transferring files
 
-Inside `dom0`:
+These instructions assume `~/qubes-claude` as the clone location — adjust
+the paths below if you used a different one.
 
-Create `/etc/qubes-rpc/local.Dom0Exec` containing [this](../files/dom0/etc/qubes-rpc/local.Dom0Exec).
+1. In `claude-vm`, download and extract `files.zip`:
 
-Use `local.Dom0Exec-zenity` if you want to confirm Claude's actions before it performs them.
+   ```shell
+   mkdir -p ~/qubes-claude
+   cd ~/qubes-claude
+   curl -fsSL -O https://raw.githubusercontent.com/fardelian/qubes-claude/refs/heads/main/files.zip
+   unzip -o files.zip
+   ```
 
-Make it executable:
+2. In `claude-vm`, install the claude-vm files:
 
-```shell
-sudo chmod +x /etc/qubes-rpc/local.Dom0Exec
-```
+   ```shell
+   sudo cp -rT .files/claude-vm /
+   sudo chmod +x /usr/local/bin/dom0-run
 
-## Install dom0 policy
+   mkdir -p ~/.claude
+   cp ~/qubes-claude/files/claude-vm/.claude/CLAUDE.md ~/.claude/CLAUDE.md
+   ```
 
-Inside `dom0`:
+3. In `dom0`, fetch `files.zip` from claude-vm and install the dom0 files:
 
-Create `/etc/qubes/policy.d/30-claude.policy` containing [this](../files/dom0/etc/qubes/policy.d/30-claude.policy).
+   ```shell
+   mkdir -p ~/qubes-claude
+   cd ~/qubes-claude
+   qvm-run --pass-io claude-vm 'cat ~/qubes-claude/files.zip' > ./files.zip
+   unzip -o ./files.zip
 
-The first line lets only `claude-vm` call this service against dom0. The second is a defense-in-depth deny for everyone else (Qubes denies unmatched services by default; this just makes the intent explicit).
+   sudo cp -rT ./files/dom0 /
+   sudo chmod +x /etc/qubes-rpc/local.Dom0Exec
+   ```
 
-No chmod needed — policy files are read by `qrexec-policy-daemon` directly.
+   `cp -rT` treats `/` as the destination itself rather than a parent —
+   without `-T`, it would create `/dom0/...` instead of merging into
+   `/etc/...`. `unzip -o` overwrites without prompting, so re-running is safe.
+
+4. (Optional) To use the zenity-confirm variant instead, in `dom0`:
+
+   ```shell
+   sudo cp /etc/qubes-rpc/local.Dom0Exec-zenity /etc/qubes-rpc/local.Dom0Exec
+   ```
+
+   The policy and the wrapper both reference `local.Dom0Exec` by name, so
+   swapping the file content is the easiest way to switch variants.
+
+After these steps, all files are in place. The two sections below describe
+the claude-vm-side files in isolation, in case you want to install them
+manually instead.
 
 ## Create claude-vm wrapper
 
